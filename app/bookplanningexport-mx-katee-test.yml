@@ -43,7 +43,7 @@ spec:
           value: '${MXRUNTIME_DatabasePassword}'
 
         - name: S3_BUCKET_NAME
-          value: "sn-mx-journalproduction-test"
+          value: "sn-mx-bookplanning-exports-test"
         - name: S3_ENDPOINT
           value: "s3-eu-central-1.amazonaws.com"
         - name: S3_SECRET_ACCESS_KEY
@@ -71,7 +71,7 @@ spec:
           value: '${MX_ActiveDirectorySearch_Password}'
 
         - name: MX_DirectBinaryUploader_AWS_BUCKET_NAME
-          value: 'sn-mx-journalproduction-test'
+          value: 'sn-mx-bookplanning-exports-test'
         - name: MX_DirectBinaryUploader_AWS_EXPIRES_PERIOD
           value: "604800"
         - name: MX_DirectBinaryUploader_AWS_SECRET_KEY
