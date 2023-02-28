@@ -7,7 +7,7 @@ spec:
   - type: snstateful
     name: bookplanningexport-mx-katee-test-app
     properties:
-      image: eu.gcr.io/halfpipe-io/journalproduction-mx-katee:${BUILD_VERSION}
+      image: eu.gcr.io/halfpipe-io/bookplanningexport-mx-katee:${BUILD_VERSION}
       ports: 
         - name: web
           containerPort: 8080
