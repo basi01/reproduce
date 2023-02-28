@@ -51,25 +51,6 @@ spec:
         - name: S3_ACCESS_KEY_ID
           value: '${S3_ACCESS_KEY_ID}'
 
-        - name: SENTRY_DSN
-          value: "https://da2b88db8cd9406caa7dea125930d292@o173313.ingest.sentry.io/4504439837425664"
-        - name: SENTRY_ENVIRONMENT
-          value: "test"
-          
-        ### Marketplace Modules ###
-        - name: MX_ActiveDirectorySearch_BaseIn
-          value: "OU=RealUsers,DC=springernature,DC=com" 
-        - name: MX_ActiveDirectorySearch_Host
-          value: "ldap://10.80.64.57" 
-        - name: MX_ActiveDirectorySearch_InitCtx
-          value: "com.sun.jndi.ldap.LdapCtxFactory" 
-        - name: MX_ActiveDirectorySearch_PageSize
-          value: "100" 
-        - name: MX_ActiveDirectorySearch_User
-          value: "JOM_LDAP" 
-        - name: MX_ActiveDirectorySearch_Password
-          value: '${MX_ActiveDirectorySearch_Password}'
-
         - name: MX_DirectBinaryUploader_AWS_BUCKET_NAME
           value: 'sn-mx-bookplanning-exports-test'
         - name: MX_DirectBinaryUploader_AWS_EXPIRES_PERIOD
@@ -79,10 +60,6 @@ spec:
         - name: MX_DirectBinaryUploader_AWS_PUBLIC_KEY
           value: '${S3_ACCESS_KEY_ID}'
 
-        - name: MX_SNPaaSLogging_SentryEnvironment
-          value: "test"
-
-
         - name: MX_Application_ENVIRONMENT_NAME
           value: "Test"
 
@@ -90,8 +67,6 @@ spec:
         - name: MX_Application_WorkDirectory
           value: "/persistent-volumes/work"
 
-        - name: MX_UserManagement_ActiveDirectorySearchFilter
-          value: "(memberOf=CN=JFLUX_A_production_editor,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_support,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_admin,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_readonly,OU=Applications,OU=Groups,DC=springernature,DC=com)" 
                
     traits:
     - type:  sningress

@@ -52,8 +52,3 @@ tasks:
     LICENSE_KEY: ((bookplanning-mx-test.LICENSE_KEY))
     S3_SECRET_ACCESS_KEY: ((mendix.S3_SECRET_ACCESS_KEY))
     S3_ACCESS_KEY_ID: ((mendix.S3_ACCESS_KEY_ID))
-    MX_Application_DDSWebServiceURL: ((bookplanning-mx-test.DDSWebServiceURL))
-    MX_Application_RABBIT_MQ_PASSWORD: ((bookplanning-mx-test.Application_RABBIT_MQ_PASSWORD))
-    MX_Application_RABBIT_MQ_USER: ((bookplanning-mx-test.Application_RABBIT_MQ_USER))
-    MX_ActiveDirectorySearch_Password: ((bookplanning-mx-test.MX_ActiveDirectorySearch_Password))
-    SENTRY_ENVIRONMENT: test
