@@ -1,0 +1,120 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: bookplanningexport-mx-katee-test
+spec:
+  components: bookplanningexport
+  - type: snstateful
+    name: bookplanningexport-mx-katee-test-app
+    properties:
+      image: eu.gcr.io/halfpipe-io/journalproduction-mx-katee:${BUILD_VERSION}
+      ports: 
+        - name: web
+          containerPort: 8080
+          servicePort: 8080
+          protocol: http
+      replicas: 2
+      imagePullPolicy: Always
+      gpuSupport: false
+      resources: 
+        cpu: 4
+        memory: 8Gi
+
+      env:
+        ### Mendix Basics ###
+        - name: LICENSE_ID
+          value: '${LICENSE_ID}'
+        - name: LICENSE_KEY
+          value: '${LICENSE_KEY}'
+
+        - name: MXRUNTIME_ApplicationRootUrl
+          value: "https://bookplanningexport-mx-katee-test.apps.private.k8s.springernature.io"
+        - name: ADMIN_PASSWORD
+          value: '${ADMIN_PASSWORD}'
+        - name: MXRUNTIME_DatabaseHost
+          value: "gcp-journalproduction-test-pgsql-01.cloudsql.de.gcp.springernature.cloud"
+        - name: MXRUNTIME_DatabaseName
+          value: "journalproduction-test-db"
+        - name: MXRUNTIME_DatabaseType
+          value: "PostgreSQL"
+        - name: MXRUNTIME_DatabaseUserName
+          value: "jpst"
+        - name: MXRUNTIME_DatabasePassword
+          value: '${MXRUNTIME_DatabasePassword}'
+
+        - name: S3_BUCKET_NAME
+          value: "sn-mx-journalproduction-test"
+        - name: S3_ENDPOINT
+          value: "s3-eu-central-1.amazonaws.com"
+        - name: S3_SECRET_ACCESS_KEY
+          value: '${S3_SECRET_ACCESS_KEY}'
+        - name: S3_ACCESS_KEY_ID
+          value: '${S3_ACCESS_KEY_ID}'
+
+        - name: SENTRY_DSN
+          value: "https://da2b88db8cd9406caa7dea125930d292@o173313.ingest.sentry.io/4504439837425664"
+        - name: SENTRY_ENVIRONMENT
+          value: "test"
+          
+        ### Marketplace Modules ###
+        - name: MX_ActiveDirectorySearch_BaseIn
+          value: "OU=RealUsers,DC=springernature,DC=com" 
+        - name: MX_ActiveDirectorySearch_Host
+          value: "ldap://10.80.64.57" 
+        - name: MX_ActiveDirectorySearch_InitCtx
+          value: "com.sun.jndi.ldap.LdapCtxFactory" 
+        - name: MX_ActiveDirectorySearch_PageSize
+          value: "100" 
+        - name: MX_ActiveDirectorySearch_User
+          value: "JOM_LDAP" 
+        - name: MX_ActiveDirectorySearch_Password
+          value: '${MX_ActiveDirectorySearch_Password}'
+
+        - name: MX_DirectBinaryUploader_AWS_BUCKET_NAME
+          value: 'sn-mx-journalproduction-test'
+        - name: MX_DirectBinaryUploader_AWS_EXPIRES_PERIOD
+          value: "604800"
+        - name: MX_DirectBinaryUploader_AWS_SECRET_KEY
+          value: '${S3_SECRET_ACCESS_KEY}'
+        - name: MX_DirectBinaryUploader_AWS_PUBLIC_KEY
+          value: '${S3_ACCESS_KEY_ID}'
+
+        - name: MX_SNPaaSLogging_SentryEnvironment
+          value: "test"
+
+
+        - name: MX_Application_ENVIRONMENT_NAME
+          value: "Test"
+
+
+        - name: MX_Application_WorkDirectory
+          value: "/persistent-volumes/work"
+
+        - name: MX_UserManagement_ActiveDirectorySearchFilter
+          value: "(memberOf=CN=JFLUX_A_production_editor,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_support,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_admin,OU=Applications,OU=Groups,DC=springernature,DC=com);(memberOf=CN=JFLUX_A_readonly,OU=Applications,OU=Groups,DC=springernature,DC=com)" 
+               
+    traits:
+    - type:  sningress
+      properties:
+        privateRoutes:
+          - route:  bookplanningexport-mx-katee-test.apps.private.k8s.springernature.io
+            servicePort: 8080
+            
+    - type: snpvc
+      properties:
+        name: extended-storage
+        # Increasing this value has no effect after initial cration of the volume.
+        # To increase the size contact PCM Architecture enablement. 
+        storageSize: 20Gi
+        volumesToMount:
+        - name: extended-storage
+          mountPath: /persistent-volumes/work
+          
+  - type: sngrafana
+    name: sngrafana-app
+    properties:
+      useV2: true
+      route:  bookplanningexport-grafana-test.apps.private.k8s.springernature.io
+      vault:
+        team: pcm-bookplanning
+        adminSecret: grafana-admin-creds
