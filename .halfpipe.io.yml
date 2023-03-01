@@ -3,8 +3,6 @@ pipeline: bookplanningexport-mx
 slack_channel: "#book-planning"
 
 triggers:
-- type: timer
-  cron: "0 */4 * * 1-5"
 - type: git
   manual_trigger: true
   branch: test 
@@ -28,7 +26,7 @@ tasks:
     
 - type: docker-push
   name: create-app-docker-and-push
-  image: eu.gcr.io/halfpipe-io/journalproduction-mx-katee
+  image: eu.gcr.io/halfpipe-io/bookplanningexport-mx-katee
   build_history: 5
   restore_artifacts: true
   vars:
@@ -45,7 +43,7 @@ tasks:
     KATEE_TEAM: pcm-bookplanning
     KATEE_APPFILE: ./app/bookplanningexport-mx-katee-test.yml
     KATEE_GKE_PROJECT: prod
-    KATEE_GKE_CREDENTIALS: ((katee-journalproduction-service-account-prod.key))
+    KATEE_GKE_CREDENTIALS: ((katee-bookplanningexport-service-account-prod.key))
     ADMIN_PASSWORD: ((bookplanning-mx-test.ADMIN_PASSWORD))
     MXRUNTIME_DatabasePassword: ((bookplanning-mx-test.MXRUNTIME_DatabasePassword))
     LICENSE_ID: ((bookplanning-mx-test.LICENSE_ID))
