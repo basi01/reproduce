@@ -32,13 +32,13 @@ spec:
         - name: ADMIN_PASSWORD
           value: '${ADMIN_PASSWORD}'
         - name: MXRUNTIME_DatabaseHost
-          value: "gcp-journalproduction-test-pgsql-01.cloudsql.de.gcp.springernature.cloud"
+          value: "gcp-pcm-bpea-test-pgsql-01.cloudsql.de.gcp.springernature.cloud"
         - name: MXRUNTIME_DatabaseName
-          value: "journalproduction-test-db"
+          value: "bpe-app-test"
         - name: MXRUNTIME_DatabaseType
           value: "PostgreSQL"
         - name: MXRUNTIME_DatabaseUserName
-          value: "jpst"
+          value: "appuser_test"
         - name: MXRUNTIME_DatabasePassword
           value: '${MXRUNTIME_DatabasePassword}'
 
