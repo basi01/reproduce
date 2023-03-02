@@ -1,0 +1,482 @@
+# Generated using halfpipe cli version 3.108.0
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: update
+  on_failure:
+    attempts: 2
+    params:
+      channel: '#book-planning'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    params:
+      depth: 1
+    timeout: 15m
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_URL: ((concourse.url))
+        CONCOURSE_USERNAME: ((concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: bookplanningexport-mx-test
+      platform: linux
+      run:
+        dir: git
+        path: update-pipeline
+    task: update
+    timeout: 15m
+  - attempts: 2
+    params:
+      bump: minor
+    put: version
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: build
+  on_failure:
+    attempts: 2
+    params:
+      channel: '#book-planning'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        params:
+          depth: 1
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/pcm-mendix
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: artifacts-out
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
+        SVN_PASSWORD: ((mendix.SVN_PASSWORD))
+        SVN_PROJECT_ID: b852dae5-6dc5-4b95-a28d-8a994073f3e7
+        SVN_USERNAME: ((mendix.SVN_USERNAME))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat .git/ref`
+          export BUILD_VERSION=`cat ../version/version`
+
+          ./build.sh
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact checkout/src ../artifacts-out/checkout
+        dir: git
+        path: /bin/sh
+    task: build
+    timeout: 1h
+  - attempts: 2
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
+  name: create-app-docker-and-push
+  on_failure:
+    attempts: 2
+    params:
+      channel: '#book-planning'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        params:
+          depth: 1
+        passed:
+        - build
+      - get: version
+        passed:
+        - build
+        trigger: true
+    timeout: 15m
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: pcm-bookplanning/bookplanningexport-mx-test
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      outputs:
+      - name: docker_build
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          cp -r git/. docker_build
+          cp -r artifacts/. docker_build
+        path: /bin/sh
+    task: copying-git-repo-and-artifacts-to-a-temporary-build-dir
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      - name: docker_build
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_BUILD_PATH: checkout/src
+        BUILD_ARG_CF_BUILDPACK: v4.28.4
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: docker_build
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        DOCKERFILE: docker_build/Dockerfile
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      - name: docker_build
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../image/image.tar || true
+        dir: docker_build
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - params:
+      additional_tags: tagList/tagList
+      image: image/image.tar
+    put: bookplanningexport-mx-katee
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: deploy-application-to-katee
+  on_failure:
+    attempts: 2
+    params:
+      channel: '#book-planning'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  on_success:
+    attempts: 2
+    params:
+      channel: '#book-planning'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        params:
+          depth: 1
+        passed:
+        - create-app-docker-and-push
+      - get: version
+        passed:
+        - create-app-docker-and-push
+        trigger: true
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/ee-katee-vela-cli
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      params:
+        ADMIN_PASSWORD: ((bookplanning-mx-test.ADMIN_PASSWORD))
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        KATEE_APPFILE: ./app/bookplanningexport-mx-katee-test.yml
+        KATEE_GKE_CREDENTIALS: ((katee-bookplanning-service-account-prod.key))
+        KATEE_GKE_PROJECT: prod
+        KATEE_TEAM: pcm-bookplanning
+        LICENSE_ID: ((bookplanning-mx-test.LICENSE_ID))
+        LICENSE_KEY: ((bookplanning-mx-test.LICENSE_KEY))
+        MXRUNTIME_DatabasePassword: ((bookplanning-mx-test.MXRUNTIME_DatabasePassword))
+        RUNNING_IN_CI: "true"
+        S3_ACCESS_KEY_ID: ((mendix.S3_ACCESS_KEY_ID))
+        S3_SECRET_ACCESS_KEY: ((mendix.S3_SECRET_ACCESS_KEY))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat .git/ref`
+          export BUILD_VERSION=`cat ../version/version`
+
+          \/exe vela up -f ./app/bookplanningexport-mx-katee-test.yml
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git
+        path: /bin/sh
+    task: deploy-application-to-katee
+    timeout: 1h
+  serial: true
+resource_types:
+- check_every: 24h
+  name: halfpipe-slack-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-slack-resource
+    tag: latest
+    username: _json_key
+  type: registry-image
+- check_every: 24h
+  name: gcp-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/gcp-resource
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: test
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/bookplanning-exports-mx-katee.git
+  type: git
+- check_every: 24h
+  name: slack
+  source:
+    token: ((halfpipe-slack.token))
+  type: halfpipe-slack-resource
+- check_every: 24h
+  name: artifacts
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: pcm-bookplanning/bookplanningexport-mx-test
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- check_every: 24h
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: pcm-bookplanning-bookplanningexport-mx-test
+  type: semver
+- check_every: 24h
+  name: bookplanningexport-mx-katee
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/bookplanningexport-mx-katee
+    username: _json_key
+  type: registry-image
+
