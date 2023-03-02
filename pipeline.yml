@@ -379,7 +379,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         KATEE_APPFILE: ./app/bookplanningexport-mx-katee-test.yml
-        KATEE_GKE_CREDENTIALS: ((katee-bookplanning-service-account-prod.key))
+        KATEE_GKE_CREDENTIALS: ((katee-pcm-bookplanning-service-account-prod.key))
         KATEE_GKE_PROJECT: prod
         KATEE_TEAM: pcm-bookplanning
         LICENSE_ID: ((bookplanning-mx-test.LICENSE_ID))
