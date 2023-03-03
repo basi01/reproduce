@@ -60,6 +60,15 @@ spec:
         - name: MX_DirectBinaryUploader_AWS_PUBLIC_KEY
           value: '${S3_ACCESS_KEY_ID}'
 
+        - name: MX_BpeMain_BookPlanningJdbcUrl
+          value: jdbc:postgresql://gcp-bp-test-pgsql-cloudsql-01-rr-01.cloudsql.de.gcp.springernature.cloud/mx_bp_test
+        - name: MX_BpeMain_BookPlanningJdbcUser
+          value: ro_mx_bp_test
+        - name: MX_BpeMain_BookPlanningJdbcPassword
+          value: '${MX_BpeMain_BookPlanningJdbcPassword}'
+        - name: MX_Export_Repository
+          value: bookplanning-test
+
         - name: MX_Application_ENVIRONMENT_NAME
           value: "Test"
 
