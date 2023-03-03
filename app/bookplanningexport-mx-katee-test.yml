@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: bookplanningexport-mx-katee-test
 spec:
-  components: bookplanningexport
+  components: 
   - type: snstateful
     name: bookplanningexport-mx-katee-test-app
     properties:
