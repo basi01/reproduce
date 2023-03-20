@@ -1,10 +1,11 @@
-# Generated using halfpipe cli version 3.108.0
+# Generated using halfpipe cli version 3.109.1
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: update
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#book-planning'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -21,6 +22,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -47,6 +49,7 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       bump: minor
     put: version
@@ -57,6 +60,7 @@ jobs:
   name: build
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#book-planning'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -84,6 +88,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -160,6 +165,7 @@ jobs:
     task: build
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -172,6 +178,7 @@ jobs:
   name: create-app-docker-and-push
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#book-planning'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -197,6 +204,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -222,6 +230,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: registry-image
@@ -242,6 +251,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -264,6 +274,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -296,6 +307,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -315,7 +327,8 @@ jobs:
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       image: image/image.tar
     put: bookplanningexport-mx-katee
@@ -326,6 +339,7 @@ jobs:
   name: deploy-application-to-katee
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#book-planning'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -335,6 +349,7 @@ jobs:
     timeout: 15m
   on_success:
     attempts: 2
+    no_get: true
     params:
       channel: '#book-planning'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
@@ -362,6 +377,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -374,17 +390,18 @@ jobs:
       - name: git
       - name: version
       params:
-        ADMIN_PASSWORD: ((bookplanning-mx-test.ADMIN_PASSWORD))
+        ADMIN_PASSWORD: ((bookplanningexport-mx-test.ADMIN_PASSWORD))
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         KATEE_APPFILE: ./app/bookplanningexport-mx-katee-test.yml
-        KATEE_GKE_CREDENTIALS: ((katee-pcm-bookplanning-service-account-prod.key))
+        KATEE_GKE_CREDENTIALS: ((katee-pcm-bookplan-ex-service-account-prod.key))
         KATEE_GKE_PROJECT: prod
-        KATEE_TEAM: pcm-bookplanning
-        LICENSE_ID: ((bookplanning-mx-test.LICENSE_ID))
-        LICENSE_KEY: ((bookplanning-mx-test.LICENSE_KEY))
-        MXRUNTIME_DatabasePassword: ((bookplanning-mx-test.MXRUNTIME_DatabasePassword))
+        KATEE_TEAM: pcm-bookplan-ex
+        LICENSE_ID: ((bookplanningexport-mx-test.LICENSE_ID))
+        LICENSE_KEY: ((bookplanningexport-mx-test.LICENSE_KEY))
+        MX_BpeMain_BookPlanningJdbcPassword: ((bookplanningexport-mx-test.MX_BpeMain_BookPlanningJdbcPassword))
+        MXRUNTIME_DatabasePassword: ((bookplanningexport-mx-test.MXRUNTIME_DatabasePassword))
         RUNNING_IN_CI: "true"
         S3_ACCESS_KEY_ID: ((mendix.S3_ACCESS_KEY_ID))
         S3_SECRET_ACCESS_KEY: ((mendix.S3_SECRET_ACCESS_KEY))
@@ -428,7 +445,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-slack-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -436,7 +453,7 @@ resource_types:
     tag: latest
     username: _json_key
   type: registry-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -445,26 +462,26 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: test
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/bookplanning-exports-mx-katee.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: slack
   source:
     token: ((halfpipe-slack.token))
   type: halfpipe-slack-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: pcm-bookplanning/bookplanningexport-mx-test
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: version
   source:
     bucket: ((halfpipe-semver.bucket))
@@ -472,7 +489,7 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: pcm-bookplanning-bookplanningexport-mx-test
   type: semver
-- check_every: 24h
+- check_every: 24h0m0s
   name: bookplanningexport-mx-katee
   source:
     password: ((halfpipe-gcr.private_key))
