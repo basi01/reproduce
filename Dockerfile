@@ -27,6 +27,9 @@ ARG BUILDPACK_XTRACE
 # Set the user ID
 ARG USER_UID=1001
 
+# Copy python scripts which execute the buildpack (exporting the VCAP variables)
+COPY scripts/add-my_mxbuild_args.sed scripts/compilation scripts/git /opt/mendix/buildpack/
+
 # Each comment corresponds to the script line:
 # 1. Create all directories needed by scripts
 # 2. Download CF buildpack
@@ -40,12 +43,10 @@ RUN set -x &&\
     echo "Downloading CF Buildpack from ${CF_BUILDPACK_URL}" &&\
     curl -fsSL ${CF_BUILDPACK_URL} -o /tmp/cf-mendix-buildpack.zip && \
     python3 -m zipfile -e /tmp/cf-mendix-buildpack.zip /opt/mendix/buildpack/ &&\
+    sed -b --in-place=.bak --file /opt/mendix/buildpack/add-my_mxbuild_args.sed /opt/mendix/buildpack/buildpack/core/mxbuild.py &&\
     rm /tmp/cf-mendix-buildpack.zip &&\
     chown -R ${USER_UID}:0 /opt/mendix &&\
     chmod -R g=u /opt/mendix
-
-# Copy python scripts which execute the buildpack (exporting the VCAP variables)
-COPY scripts/compilation scripts/git /opt/mendix/buildpack/
 
 # Copy project model/sources
 COPY $BUILD_PATH /opt/mendix/build
@@ -72,7 +73,8 @@ RUN set -x &&\
     mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
     chmod +rx /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git /opt/mendix/buildpack/buildpack/stage.py &&\
     cd /opt/mendix/buildpack &&\
-    ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
+    MY_MODEL_VERSION=$(< /opt/mendix/build/model-version.txt) \
+      ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
     rm -fr /tmp/buildcache /tmp/javasdk /tmp/opt /tmp/downloads /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git &&\
     ln -s /opt/mendix/.java /opt/mendix/build &&\
     chown -R ${USER_UID}:0 /opt/mendix /var/mendix &&\

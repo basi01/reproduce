@@ -15,6 +15,7 @@ if [ -z "$SVN_REV" ]; then
   SVN_REV=$(svn info --show-item last-changed-revision checkout/src)
 fi
 echo "r$SVN_REV" >checkout/src/model-version.txt
+echo "SVN Revision: $SVN_REV"
 
 rm -rf checkout/src/.svn
 
