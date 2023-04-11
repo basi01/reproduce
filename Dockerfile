@@ -34,7 +34,8 @@ ARG USER_UID=1001
 # 4. Delete CF buildpack zip archive
 # 5. Update ownership of /opt/mendix so that the app can run as a non-root user
 # 6. Update permissions of /opt/mendix so that the app can run as a non-root user
-RUN mkdir -p /opt/mendix/buildpack /opt/mendix/build &&\
+RUN set -x &&\
+    mkdir -p /opt/mendix/buildpack /opt/mendix/build &&\
     ln -s /root /home/vcap &&\
     echo "Downloading CF Buildpack from ${CF_BUILDPACK_URL}" &&\
     curl -fsSL ${CF_BUILDPACK_URL} -o /tmp/cf-mendix-buildpack.zip && \
@@ -67,7 +68,8 @@ ENV NGINX_CUSTOM_BIN_PATH=/usr/sbin/nginx
 # 6. Create symlink for java prefs used by CF buildpack
 # 7. Update ownership of /opt/mendix so that the app can run as a non-root user
 # 8. Update permissions of /opt/mendix so that the app can run as a non-root user
-RUN mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
+RUN set -x &&\
+    mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
     chmod +rx /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git /opt/mendix/buildpack/buildpack/stage.py &&\
     cd /opt/mendix/buildpack &&\
     ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
