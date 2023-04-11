@@ -73,7 +73,7 @@ RUN set -x &&\
     mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
     chmod +rx /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git /opt/mendix/buildpack/buildpack/stage.py &&\
     cd /opt/mendix/buildpack &&\
-    MY_MODEL_VERSION=\$(< /opt/mendix/build/model-version.txt) \
+    MY_MODEL_VERSION=`cat /opt/mendix/build/model-version.txt` \
       ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
     rm -fr /tmp/buildcache /tmp/javasdk /tmp/opt /tmp/downloads /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git &&\
     ln -s /opt/mendix/.java /opt/mendix/build &&\
