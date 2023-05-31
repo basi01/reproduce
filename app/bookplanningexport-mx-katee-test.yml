@@ -76,6 +76,9 @@ spec:
         - name: MX_Application_WorkDirectory
           value: "/persistent-volumes/work"
 
+        - name: VCAP_SERVICES
+          value: '{"app-logging":[{"dummy":"dummy"}]}'
+
                
     traits:
     - type:  sningress
