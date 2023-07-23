@@ -4,7 +4,7 @@ slack_channel: "#book-planning"
 
 triggers:
 - type: git
-  manual_trigger: true
+  manual_trigger: false
   branch: test 
   shallow: true
 
