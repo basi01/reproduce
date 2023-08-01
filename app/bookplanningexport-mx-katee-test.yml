@@ -71,6 +71,8 @@ spec:
           value: '${MX_BpeMain_BookPlanningJdbcPassword}'
         - name: MX_Export_Repository
           value: bookplanning-test
+        - name: MX_GenericXml_GoogleCredentialsJson
+          value: '${MX_GenericXml_GoogleCredentialsJson}'
 
         - name: MX_Application_ENVIRONMENT_NAME
           value: "Test"
