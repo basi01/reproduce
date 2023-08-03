@@ -1,6 +1,6 @@
 team: pcm-bookplanning
 pipeline: bookplanningexport-mx
-slack_channel: "#book-planning"
+slack_channel: "#mbs-deploys"
 
 triggers:
 - type: git
