@@ -3,7 +3,7 @@
 #
 # Author: Mendix Digital Ecosystems, digitalecosystems@mendix.com
 # Version: 2.1.0
-ARG ROOTFS_IMAGE=mendix/rootfs:ubi8
+ARG ROOTFS_IMAGE=eu.gcr.io/halfpipe-io/bookplanningexport-mx-katee-base
 ARG BUILDER_ROOTFS_IMAGE=mendix/rootfs:bionic
 
 # Build stage

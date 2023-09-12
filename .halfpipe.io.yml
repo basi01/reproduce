@@ -51,4 +51,5 @@ tasks:
     S3_SECRET_ACCESS_KEY: ((mendix.S3_SECRET_ACCESS_KEY))
     S3_ACCESS_KEY_ID: ((mendix.S3_ACCESS_KEY_ID))
     MX_BpeMain_BookPlanningJdbcPassword: ((bookplanningexport-mx-test.MX_BpeMain_BookPlanningJdbcPassword))
+    MX_Cover_DDSWebserviceURL: ((bookplanningexport-mx-test.MX_Cover_DDSWebserviceURL))
     MX_GenericXml_GoogleCredentialsJson: ((bookplanningexport-mx-test.MX_GenericXml_GoogleCredentialsJson))
