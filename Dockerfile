@@ -3,7 +3,7 @@
 #
 # Author: Mendix Digital Ecosystems, digitalecosystems@mendix.com
 # Version: 2.1.0
-ARG ROOTFS_IMAGE=eu.gcr.io/halfpipe-io/bookplanningexport-mx-katee-base
+ARG ROOTFS_IMAGE=mendix/rootfs:ubi8
 ARG BUILDER_ROOTFS_IMAGE=mendix/rootfs:bionic
 
 # Build stage
@@ -122,6 +122,13 @@ RUN chmod +rx /opt/mendix/build/startup &&\
     chown -R ${USER_UID}:0 /opt/mendix &&\
     chmod -R g=u /opt/mendix &&\
     ln -s /opt/mendix/.java /root
+
+RUN set -e; set -x ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
+  rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
+  microdnf install ImageMagick ;\
+  microdnf clean all ;
 
 USER ${USER_UID}
 
