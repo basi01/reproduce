@@ -91,6 +91,11 @@ spec:
         - name: VCAP_SERVICES
           value: '{"app-logging":[{"dummy":"dummy"}]}'
 
+        - name: MXRUNTIME_Metrics_Registries
+          value: "[{\"type\":\"prometheus\",\"settings\":{\"step\":\"10s\"}}]"
+        - name: NGINX_CUSTOM_LOCATIONS
+          value: '{"/metrics": {"body": "proxy_pass http://127.0.0.1:8082/prometheus;\nallow all;"}}'
+
     traits:
     - type:  sningress
       properties:
@@ -98,6 +103,16 @@ spec:
           - route: bookplanningexport-mx-katee-test.apps.private.k8s.springernature.io
             #cname: bookplanningexport-test.springernature.com
             servicePort: 8080
+
+     - type: snmonitor
+       properties:
+        prometheusName: bookplan-prom
+        endpoints:
+          - path: /metrics
+            targetPort: 8080
+        probes:
+          - jobName: webprobe
+            servicePort: 8080  
             
     - type: snpvc
       properties:
