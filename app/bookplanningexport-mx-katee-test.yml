@@ -124,11 +124,11 @@ spec:
         - name: extended-storage
           mountPath: /persistent-volumes/work
           
-  - type: sngrafana
-    name: sngrafana-app
-    properties:
-      useV2: true
-      route:  bookplanningexport-grafana-test.apps.private.k8s.springernature.io
-      vault:
-        team: pcm-bookplanning
-        adminSecret: grafana-admin-creds
+  #- type: sngrafana
+    #name: sngrafana-app
+    #properties:
+      #useV2: true
+      #route:  bookplanningexport-grafana-test.apps.private.k8s.springernature.io
+      #vault:
+        #team: pcm-bookplanning
+        #adminSecret: grafana-admin-creds
