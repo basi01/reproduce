@@ -13,7 +13,7 @@ FROM ${BUILDER_ROOTFS_IMAGE} AS builder
 ARG BUILD_PATH=project
 ARG DD_API_KEY
 # CF buildpack version
-ARG CF_BUILDPACK=v4.30.9
+ARG CF_BUILDPACK=v4.28.4
 # CF buildpack download URL
 ARG CF_BUILDPACK_URL=https://github.com/mendix/cf-mendix-buildpack/releases/download/${CF_BUILDPACK}/cf-mendix-buildpack.zip
 
@@ -125,12 +125,12 @@ RUN chmod +rx /opt/mendix/build/startup &&\
     chmod -R g=u /opt/mendix &&\
     ln -s /opt/mendix/.java /root
 
-# RUN set -e; set -x ;\
-#   rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
-#   rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
-#   rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
-#   microdnf install ImageMagick ;\
-#   microdnf clean all ;
+RUN set -e; set -x ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
+  rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
+  microdnf install ImageMagick ;\
+  microdnf clean all ;
 
 USER ${USER_UID}
 
