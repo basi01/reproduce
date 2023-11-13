@@ -27,6 +27,9 @@ ARG BUILDPACK_XTRACE
 # Set the user ID
 ARG USER_UID=1001
 
+# Copy python scripts which execute the buildpack (exporting the VCAP variables)
+COPY scripts/add-my_mxbuild_args.sed scripts/compilation scripts/git /opt/mendix/buildpack/
+
 # Each comment corresponds to the script line:
 # 1. Create all directories needed by scripts
 # 2. Download CF buildpack
@@ -34,17 +37,16 @@ ARG USER_UID=1001
 # 4. Delete CF buildpack zip archive
 # 5. Update ownership of /opt/mendix so that the app can run as a non-root user
 # 6. Update permissions of /opt/mendix so that the app can run as a non-root user
-RUN mkdir -p /opt/mendix/buildpack /opt/mendix/build &&\
+RUN set -x &&\
+    mkdir -p /opt/mendix/buildpack /opt/mendix/build &&\
     ln -s /root /home/vcap &&\
     echo "Downloading CF Buildpack from ${CF_BUILDPACK_URL}" &&\
     curl -fsSL ${CF_BUILDPACK_URL} -o /tmp/cf-mendix-buildpack.zip && \
     python3 -m zipfile -e /tmp/cf-mendix-buildpack.zip /opt/mendix/buildpack/ &&\
+    sed -b --in-place=.bak --file /opt/mendix/buildpack/add-my_mxbuild_args.sed /opt/mendix/buildpack/buildpack/core/mxbuild.py &&\
     rm /tmp/cf-mendix-buildpack.zip &&\
     chown -R ${USER_UID}:0 /opt/mendix &&\
     chmod -R g=u /opt/mendix
-
-# Copy python scripts which execute the buildpack (exporting the VCAP variables)
-COPY scripts/compilation scripts/git /opt/mendix/buildpack/
 
 # Copy project model/sources
 COPY $BUILD_PATH /opt/mendix/build
@@ -67,14 +69,18 @@ ENV NGINX_CUSTOM_BIN_PATH=/usr/sbin/nginx
 # 6. Create symlink for java prefs used by CF buildpack
 # 7. Update ownership of /opt/mendix so that the app can run as a non-root user
 # 8. Update permissions of /opt/mendix so that the app can run as a non-root user
-RUN mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
+# Commented out the line with 'set -x'
+RUN set -x &&\
+    mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
     chmod +rx /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git /opt/mendix/buildpack/buildpack/stage.py &&\
     cd /opt/mendix/buildpack &&\
+    MY_MODEL_VERSION=`cat /opt/mendix/build/model-version.txt` \
     ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
     rm -fr /tmp/buildcache /tmp/javasdk /tmp/opt /tmp/downloads /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git &&\
     ln -s /opt/mendix/.java /opt/mendix/build &&\
     chown -R ${USER_UID}:0 /opt/mendix /var/mendix &&\
     chmod -R g=u /opt/mendix /var/mendix
+
 
 FROM ${ROOTFS_IMAGE}
 LABEL Author="Mendix Digital Ecosystems"
@@ -118,6 +124,13 @@ RUN chmod +rx /opt/mendix/build/startup &&\
     chown -R ${USER_UID}:0 /opt/mendix &&\
     chmod -R g=u /opt/mendix &&\
     ln -s /opt/mendix/.java /root
+
+RUN set -e; set -x ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
+  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
+  rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
+  microdnf install ImageMagick ;\
+  microdnf clean all ;
 
 USER ${USER_UID}
 
