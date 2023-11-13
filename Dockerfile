@@ -70,11 +70,11 @@ ENV NGINX_CUSTOM_BIN_PATH=/usr/sbin/nginx
 # 7. Update ownership of /opt/mendix so that the app can run as a non-root user
 # 8. Update permissions of /opt/mendix so that the app can run as a non-root user
 # Commented out the line with 'set -x'
-RUN \
+RUN set -x &&\
     mkdir -p /tmp/buildcache /tmp/cf-deps /var/mendix/build /var/mendix/build/.local &&\
     chmod +rx /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git /opt/mendix/buildpack/buildpack/stage.py &&\
     cd /opt/mendix/buildpack &&\
-    # MY_MODEL_VERSION=`cat /opt/mendix/build/model-version.txt` \
+    MY_MODEL_VERSION=`cat /opt/mendix/build/model-version.txt` \
     ./compilation /opt/mendix/build /tmp/buildcache /tmp/cf-deps 0 &&\
     rm -fr /tmp/buildcache /tmp/javasdk /tmp/opt /tmp/downloads /opt/mendix/buildpack/compilation /opt/mendix/buildpack/git &&\
     ln -s /opt/mendix/.java /opt/mendix/build &&\
@@ -125,12 +125,12 @@ RUN chmod +rx /opt/mendix/build/startup &&\
     chmod -R g=u /opt/mendix &&\
     ln -s /opt/mendix/.java /root
 
-RUN set -e; set -x ;\
-  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
-  rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
-  rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
-  microdnf install ImageMagick ;\
-  microdnf clean all ;
+# RUN set -e; set -x ;\
+#   rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
+#   rpm -ivh http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
+#   rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
+#   microdnf install ImageMagick ;\
+#   microdnf clean all ;
 
 USER ${USER_UID}
 
