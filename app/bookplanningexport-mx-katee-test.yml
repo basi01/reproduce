@@ -104,16 +104,6 @@ spec:
             #cname: bookplanningexport-test.springernature.com
             servicePort: 8080
 
-    - type: snmonitor
-      properties:
-        prometheusName: bookplan-prom
-        endpoints:
-          - path: /metrics
-            targetPort: 8080
-        probes:
-          - jobName: webprobe
-            servicePort: 8080  
-            
     - type: snpvc
       properties:
         name: extended-storage
