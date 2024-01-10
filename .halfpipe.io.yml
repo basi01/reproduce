@@ -31,7 +31,7 @@ tasks:
   restore_artifacts: true
   vars:
     BUILD_PATH: checkout/src
-    CF_BUILDPACK: v4.28.4
+    CF_BUILDPACK: v4.30.9
 
 - type: run
   name: deploy-application-to-katee
