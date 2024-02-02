@@ -73,8 +73,8 @@ spec:
           value: '${MX_Cover_DDSWebserviceURL}'
         - name: MX_Export_Repository
           value: bookplanning-test
-        - name: MX_GenericXml_GcsBucketName
-          value: gxml-bflux-acc
+        #- name: MX_GenericXml_GcsBucketName
+        #  value: gxml-bflux-int
         - name: MX_GenericXml_GoogleCredentialsJson
           value: '${MX_GenericXml_GoogleCredentialsJson}'
         - name: MX_MpsExport_MpsSiNcOutLocation
