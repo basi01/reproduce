@@ -88,6 +88,8 @@ spec:
         #  value: gxml-bflux-acc
         - name: MX_GenericXml_GoogleCredentialsJson
           value: '${MX_GenericXml_GoogleCredentialsJson}'
+        - name: MX_MpsExport_MpsMiOBfluxBooksV3Location
+          value: "https://mobile-base.springernature.com:50601/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_BFLUX_BOOKS&receiverParty=&receiverService=&interface=MI_O_BFLUX_BOOKS_V3&interfaceNamespace=http%3A%2F%2Fspringer.com%2Fxi%2FBFLUX%2FBOOKS"
         - name: MX_MpsExport_MpsSiNcOutLocation
           value: "https://mobile-base.springernature.com:50601/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_BFLUX_BOOKS&receiverParty=&receiverService=&interface=SI_NC_OUT&interfaceNamespace=http%3A%2Fspringer.com%2Fxi%2FBFLOW%2FBOOK_TITLES_VERSION_05"
         - name: MX_MpsExport_MpsSiNcBfluxOutLocation
