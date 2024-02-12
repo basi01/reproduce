@@ -94,13 +94,14 @@ spec:
           value: "https://mobile-base.springernature.com:50601/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_BFLUX_BOOKS&receiverParty=&receiverService=&interface=SI_BFLUX_NC_OUT&interfaceNamespace=http%3A%2Fspringer.com%2Fxi%2FBFLOW%2FBOOK_TITLES_VERSION_05"
         - name: MX_MpsExport_MpsWsPassword
           value: '${MX_MpsExport_MpsWsPassword}'
+        - name: MX_RabbitMQConnector_Password
+          value: ''
 
         - name: MX_Application_ENVIRONMENT_NAME
           value: "Test"
 
         - name: MX_Application_WorkDirectory
           value: "/persistent-volumes/work"
-
         - name: VCAP_SERVICES
           value: '{"app-logging":[{"dummy":"dummy"}]}'
 
