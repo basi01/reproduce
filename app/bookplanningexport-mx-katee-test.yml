@@ -82,7 +82,7 @@ spec:
           value: '${MX_BpeMain_BookPlanningJdbcPassword}'
         - name: MX_Cover_DDSWebserviceURL
           value: '${MX_Cover_DDSWebserviceURL}'
-        - name: MX_Export_Repository
+        - name: MX_GenericXml_Repository
           value: bookplanning-test
         #- name: MX_GenericXml_GcsBucketName
         #  value: gxml-bflux-acc
