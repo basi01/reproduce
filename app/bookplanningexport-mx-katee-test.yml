@@ -96,8 +96,13 @@ spec:
           value: "https://mobile-base.springernature.com:50601/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_BFLUX_BOOKS&receiverParty=&receiverService=&interface=SI_BFLUX_NC_OUT&interfaceNamespace=http%3A%2Fspringer.com%2Fxi%2FBFLOW%2FBOOK_TITLES_VERSION_05"
         - name: MX_MpsExport_MpsWsPassword
           value: '${MX_MpsExport_MpsWsPassword}'
+
+        - name: MX_RabbitMQConnector_UserName
+          value: "e4cc9ab4-8ee8-42f2-8591-a492855e21a6"
+        - name: MX_RabbitMQConnector_VirtualHost
+          value: "6d97e5c0-de2d-4349-8cce-b88c7cc9d434"
         - name: MX_RabbitMQConnector_Password
-          value: ''
+          value: '${MX_RabbitMQConnector_Password}'
 
         - name: MX_Application_ENVIRONMENT_NAME
           value: "Test"
