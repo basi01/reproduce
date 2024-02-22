@@ -112,6 +112,11 @@ spec:
         - name: VCAP_SERVICES
           value: '{"app-logging":[{"dummy":"dummy"}]}'
 
+        - name: SENTRY_ENVIRONMENT
+          value: "bpe-test"
+        - name: MX_SNPaaSLogging_SentryDSN
+          value: "https://ac8c5d4afe334a55aa145845878a2458@o173313.ingest.sentry.io/4504163783475200?stacktrace.app.packages="
+
         - name: MXRUNTIME_Metrics_Registries
           value: "[{\"type\":\"prometheus\",\"settings\":{\"step\":\"10s\"}}]"
         - name: NGINX_CUSTOM_LOCATIONS
