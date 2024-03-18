@@ -55,3 +55,4 @@ tasks:
     MX_GenericXml_GoogleCredentialsJson: ((bookplanningexport-mx-test.MX_GenericXml_GoogleCredentialsJson))
     MX_MpsExport_MpsWsPassword: ((bookplanningexport-mx-test.MX_MpsExport_MpsWsPassword))
     MX_RabbitMQConnector_Password: ((bookplanningexport-mx-test.MX_RabbitMQConnector_Password))
+    DEBUGGER_PASSWORD: ((bookplanningexport-mx-test.DEBUGGER_PASSWORD))  

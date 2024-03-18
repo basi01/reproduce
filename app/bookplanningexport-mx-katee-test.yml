@@ -121,6 +121,8 @@ spec:
           value: "[{\"type\":\"prometheus\",\"settings\":{\"step\":\"10s\"}}]"
         - name: NGINX_CUSTOM_LOCATIONS
           value: '{"/metrics": {"body": "proxy_pass http://127.0.0.1:8082/prometheus;\nallow all;"}}'
+        - name: DEBUGGER_PASSWORD
+          value: '${DEBUGGER_PASSWORD}'
 
     traits:
     - type:  sningress
