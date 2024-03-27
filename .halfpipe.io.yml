@@ -34,6 +34,14 @@ tasks:
     CF_BUILDPACK: v4.28.4
 
 - type: run
+  name: BPE-Test-deployment-started
+  script: init-test.sh
+  manual_trigger: false
+  notify_on_success: true
+  docker:
+     image: eu.gcr.io/halfpipe-io/cf-cli:latest
+
+- type: run
   name: deploy-application-to-katee
   script: \/exe vela up -f ./app/bookplanningexport-mx-katee-test.yml
   docker:
