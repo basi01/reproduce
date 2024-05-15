@@ -1,6 +1,7 @@
 team: pcm-bookplanning
 pipeline: bookplanningexport-mx
 slack_channel: "#mbs-deploys"
+teams_webhook: ((teams-webhook.TEAMS_WEBHOOK))
 
 triggers:
 - type: git
