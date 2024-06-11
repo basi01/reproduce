@@ -126,8 +126,8 @@ RUN chmod +rx /opt/mendix/build/startup &&\
     ln -s /opt/mendix/.java /root
 
 RUN set -e; set -x ;\
-  rpm -ivh http://vault.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
-  rpm -ivh http://vault.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
+  rpm -ivh https://vault.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-6.el8.noarch.rpm ;\
+  rpm -ivh https://vault.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-8-6.el8.noarch.rpm ;\
   sed -i 's,mirror.centos.org,vault.centos.org,g;/^mirrorlist=/s,^,#,;/baseurl=.*vault.centos.org/s,^#,,' /etc/yum.repos.d/CentOS-*.repo ;\
   rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;\
   microdnf install ImageMagick socat;\
