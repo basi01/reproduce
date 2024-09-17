@@ -80,6 +80,8 @@ spec:
           value: ro_mx_bp_test
         - name: MX_BpeMain_BookPlanningJdbcPassword
           value: '${MX_BpeMain_BookPlanningJdbcPassword}'
+        - name: MX_Breeze_UI_Web_Content_RuntimeEnvironment
+          value: 'Test'
         - name: MX_Cover_DDSWebserviceURL
           value: '${MX_Cover_DDSWebserviceURL}'
         - name: MX_GenericXml_Repository

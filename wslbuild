@@ -1,0 +1,49 @@
+#!/bin/bash
+
+SVN_PROJECT_ID=b852dae5-6dc5-4b95-a28d-8a994073f3e7
+BUILDDIR=/tmp/bookplanning-exports-build
+
+set -e
+
+THISDIR=$(cd "${0%/*}" && pwd)
+
+export MXVERSIONSDIR="/opt/mendix"
+export JAVA_HOME=$(update-alternatives --query javac | sed 's,^Value: \(.*\)/bin/javac,\1,;t;d')
+
+CHECKOUT_SRC="${BUILDDIR:?}/checkout/src"
+GIT_DIR_1="${CHECKOUT_SRC:?}.save/.git"
+
+source ~/.wslbuildrc
+
+export SVN_USERNAME SVN_USERTOKEN SVN_PROJECT_ID
+
+mkdir -p "${BUILDDIR:?}"
+cd "${BUILDDIR:?}"
+
+# clean existing
+fn_cleanup_git() {
+  # `set -e` won't work here
+  if [ -d "${1:?}" ]; then
+  (
+    cd "${1:?}" &&
+    toplevel="$(git rev-parse --show-toplevel 2>/dev/null)" &&
+    [[ . -ef "$toplevel" ]] &&
+    ( git remote remove origin 2>/dev/null || true ) &&
+    git reset --hard &&
+    git clean -xdf
+  )
+  else
+    false
+  fi || {
+    echo "no existing worktree"
+    rm -rf -- "$@"
+  }
+}
+
+if true; then
+  :
+  GIT_DIR="${GIT_DIR_1:?}" fn_cleanup_git "${CHECKOUT_SRC:?}" "${GIT_DIR_1:?}"
+fi
+
+echo calling build script
+"$THISDIR/build.sh"
