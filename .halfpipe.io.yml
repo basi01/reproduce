@@ -24,7 +24,6 @@ tasks:
     - checkout/src
   vars:
     SVN_USERNAME: ((mendix.SVN_USERNAME))
-    SVN_PASSWORD: ((mendix.SVN_PASSWORD))
     SVN_PROJECT_ID: b852dae5-6dc5-4b95-a28d-8a994073f3e7 
     SVN_USERTOKEN: ((mendix.SVN_USERTOKEN))
     
