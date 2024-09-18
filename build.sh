@@ -1,39 +1,49 @@
 #!/bin/bash
 
-#rm -rf checkout/src/.git
-#mv -T checkout/src.save/.git checkout/src/.git 2>/dev/null || true
-
 set -e
+set -o pipefail
 
-THISDIR=$(cd "${0%/*}" && pwd)
+SVN_REV=`cat ${1:?}`
+
+MXGIT_BASE_URL="https://git.api.mendix.com"
+
 SAVEDIR=${PWD:?}
 
-# Worktree is the output artifact itself so storing .git separately
-export GIT_DIR="${SAVEDIR:?}/checkout/src.save/.git"
+fn_git_conf_add() {
+  #
+  # add Git configuration option without writing to any file
+  #
+  export "GIT_CONFIG_KEY_$((GIT_CONFIG_COUNT))=${1:?}"
+  export "GIT_CONFIG_VALUE_$((GIT_CONFIG_COUNT))=${2}"
+  export GIT_CONFIG_COUNT=$((GIT_CONFIG_COUNT + 1))
+}
 
-mkdir -p checkout/src checkout/src.save
+# reset
+export GIT_CONFIG_COUNT=0
 
-SVN_REV=`cat $THISDIR/revision.txt`
-echo "Checking out code (revision $SVN_REV)"
+# disable default git config
+export GIT_CONFIG_GLOBAL=/dev/null
 
-SCM_URL="https://git.api.mendix.com/${SVN_PROJECT_ID:?}.git"
-
-# This starts a daemon process that may leak!
-#git credential-cache exit
-#git_arg_cred=credential.helper="cache"
+SCM_URL="${MXGIT_BASE_URL:?}/${SVN_PROJECT_ID:?}.git"
 
 # This stores password as plaintext!
 rm -f "$SAVEDIR/.gitcred"
-git_arg_cred=credential.helper="store --file=\"$SAVEDIR/.gitcred\""
+fn_git_conf_add credential.helper "store --file=\"${SAVEDIR:?}/.gitcred\""
 
 # Store or Cache the password escaping the '@' sign in username if necessary
-cat <<EOF | git -c "$git_arg_cred" credential approve
-url=${SCM_URL:?}
+cat <<EOF | git credential approve
+url=${MXGIT_BASE_URL:?}
 username=${SVN_USERNAME:?}
 password=${SVN_USERTOKEN:?}
 EOF
 
-mkdir -p checkout/src
+echo "Checking out code (revision $SVN_REV)"
+
+mkdir -p checkout/src checkout/src.save
+
+# Worktree is the output artifact itself so storing .git separately
+export GIT_DIR="${SAVEDIR:?}/checkout/src.save/.git"
+
 cd checkout/src
 
 {
@@ -43,8 +53,11 @@ cd checkout/src
   # add a remote
   git remote add origin "${SCM_URL:?}"
 
-  # set the username for URL
-  git config credential."${SCM_URL:?}".username "${SVN_USERNAME:?}"
+  # This is unnecessary when .gitcred already has a matching url-user-password
+  if false && [ ! -z "$SVN_USERNAME" ]; then
+    # set the username for URL
+    git config credential."${SCM_URL:?}".username "${SVN_USERNAME:?}"
+  fi
 
   # specifying --depth when repo already shallow causes redundant traffic
   git_depth_arg=
@@ -54,10 +67,10 @@ cd checkout/src
   # Note: the full history up to this commit will be retrieved unless
   #       you limit it with '--depth=...' or '--shallow-since=...'
   checkoutarg=FETCH_HEAD
-  git -c "$git_arg_cred" fetch $git_depth_arg origin "${SVN_REV:?}" || {
+  git fetch $git_depth_arg origin "${SVN_REV:?}" || {
     # not all names can be fetched, e.g. abbreviated commits can't,
     # fallback to full fetch
-    git -c "$git_arg_cred" fetch $git_depth_arg origin
+    git fetch $git_depth_arg origin
     checkoutarg="${SVN_REV:?}"
   }
 

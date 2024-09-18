@@ -15,7 +15,7 @@ feature_toggles:
 tasks:
 - type: run
   name: build
-  script: ./build.sh
+  script: ./build.sh ./revision.txt
   docker:
     # has no git: image: eu.gcr.io/halfpipe-io/pcm-mendix
     # git too ancient: image: eu.gcr.io/halfpipe-io/git-resource
