@@ -1,0 +1,6 @@
+pipeline.yml
+*.bak
+/checkout
+/modeler
+/runtime
+/mxbuild*

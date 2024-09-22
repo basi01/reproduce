@@ -1,0 +1,18 @@
+team: pcm-bookplanning
+pipeline: reproduce
+
+triggers:
+- type: git
+  manual_trigger: false
+  branch: master 
+  shallow: false # https://github.com/concourse/git-resource/issues/430
+
+feature_toggles:
+- update-pipeline
+
+tasks:
+- type: run
+  name: testsub
+  script: ./testsub
+  docker:
+    image: eu.gcr.io/halfpipe-io/production/pcm-mendix-awscli-build

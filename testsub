@@ -1,0 +1,11 @@
+#!/bin/bash
+
+find .
+
+git submodule sync --recursive
+
+git submodule update --recursive
+
+ls
+
+exit 1
