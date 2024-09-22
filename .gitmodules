@@ -1,0 +1,5 @@
+[submodule "docker-mendix-buildpack"]
+	path = docker-mendix-buildpack
+	url = https://github.com/mendix/docker-mendix-buildpack.git
+	branch = latest
+	shallow = false
